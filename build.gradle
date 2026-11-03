@@ -1,0 +1,61 @@
+plugins {
+    id 'eclipse'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+version = '0.1.0'
+group = 'dev.rinneganpaths'
+base { archivesName = 'rinnegan_paths-1.20.1' }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods { rinnegan_paths { source sourceSets.main } }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            args '--nogui'
+            mods { rinnegan_paths { source sourceSets.main } }
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    // base mod jar goes in ./libs (narutoto-0_4_1-forge.jar)
+    flatDir { dir 'libs' }
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { name = 'GeckoLib'; url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
+    // Dependência local obrigatória: coloque o JAR original do Narutoto em libs/.
+    def narutotoJar = file('libs/narutoto-0_4_1-forge.jar')
+    if (!narutotoJar.exists()) {
+        throw new GradleException('Dependência ausente: libs/narutoto-0_4_1-forge.jar. Consulte o README.md.')
+    }
+    implementation fg.deobf(files(narutotoJar))
+}
+
+tasks.named('jar', Jar) {
+    manifest.attributes([
+        'Specification-Title': 'rinnegan_paths',
+        'Specification-Vendor': 'rinnegan_paths',
+        'Specification-Version': '1',
+        'Implementation-Title': project.name,
+        'Implementation-Version': project.jar.archiveVersion,
+        'Implementation-Vendor': 'rinnegan_paths'
+    ])
+    finalizedBy 'reobfJar'
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

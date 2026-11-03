@@ -1,0 +1,5 @@
+COLOQUE AQUI o arquivo original do mod Narutoto com este nome exato:
+narutoto-0_4_1-forge.jar
+
+O JAR é uma dependência de compilação e precisa estar disponível no repositório GitHub em libs/.
+Este arquivo de texto não substitui o JAR.

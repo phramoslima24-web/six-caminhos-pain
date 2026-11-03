@@ -1,0 +1,21 @@
+{
+  "key.categories.rinnegan_paths": "Rinnegan: Six Paths",
+  "key.rinnegan_paths.use": "Use selected Path",
+  "key.rinnegan_paths.cycle": "Cycle Path",
+  "ability.rinnegan_paths.ningendo": "Ningendo - Soul Extraction",
+  "ability.rinnegan_paths.chikushodo": "Chikushodo - Summoning",
+  "ability.rinnegan_paths.gakido": "Gakido - Chakra Absorption (toggle)",
+  "ability.rinnegan_paths.jigokudo": "Jigokudo - Judgment (sneak: Restore)",
+  "ability.rinnegan_paths.black_rods": "Chakra Receivers - Black Rods",
+  "ability.rinnegan_paths.rinne_tensei": "Rinne Tensei - Revival",
+  "text.rinnegan_paths.need_rinnegan": "§cYou need to activate Rinnegan to use this",
+  "text.rinnegan_paths.not_enough_chakra": "§cYou don't have enough chakra (%s needed)",
+  "text.rinnegan_paths.cooldown": "§eCooldown: %ss",
+  "text.rinnegan_paths.no_target": "§cNo valid target in sight",
+  "text.rinnegan_paths.gaki_on": "§bGakido: barrier active",
+  "text.rinnegan_paths.gaki_off": "§7Gakido: barrier released",
+  "text.rinnegan_paths.interrogate": "§5Jigokudo judgment: %s - HP %s - Chakra %s",
+  "text.rinnegan_paths.restored": "§aJigokudo restored %s ally(ies)",
+  "text.rinnegan_paths.rinne_none": "§cNobody can be revived nearby (deaths must be recent and within range)",
+  "text.rinnegan_paths.rinne_done": "§dRinne Tensei: %s player(s), %s NPC(s) revived, %s item stack(s) recovered"
+}

@@ -1,0 +1,21 @@
+{
+  "key.categories.rinnegan_paths": "Rinnegan: Seis Caminhos",
+  "key.rinnegan_paths.use": "Usar Caminho selecionado",
+  "key.rinnegan_paths.cycle": "Alternar Caminho",
+  "ability.rinnegan_paths.ningendo": "Ningendo - Extracao de Alma",
+  "ability.rinnegan_paths.chikushodo": "Chikushodo - Invocacao",
+  "ability.rinnegan_paths.gakido": "Gakido - Absorcao de Chakra (liga/desliga)",
+  "ability.rinnegan_paths.jigokudo": "Jigokudo - Julgamento (agachado: Restaurar)",
+  "ability.rinnegan_paths.black_rods": "Receptores de Chakra - Hastes Negras",
+  "ability.rinnegan_paths.rinne_tensei": "Rinne Tensei - Ressurreicao",
+  "text.rinnegan_paths.need_rinnegan": "§cVocê precisa ativar o Rinnegan para usar isso",
+  "text.rinnegan_paths.not_enough_chakra": "§cVocê não tem chakra suficiente (%s necessário)",
+  "text.rinnegan_paths.cooldown": "§eRecarga: %ss",
+  "text.rinnegan_paths.no_target": "§cNenhum alvo válido à vista",
+  "text.rinnegan_paths.gaki_on": "§bGakido: barreira ativa",
+  "text.rinnegan_paths.gaki_off": "§7Gakido: barreira desfeita",
+  "text.rinnegan_paths.interrogate": "§5Julgamento do Jigokudo: %s - Vida %s - Chakra %s",
+  "text.rinnegan_paths.restored": "§aJigokudo restaurou %s aliado(s)",
+  "text.rinnegan_paths.rinne_none": "§cNinguém pode ser revivido por perto (a morte precisa ser recente e dentro do alcance)",
+  "text.rinnegan_paths.rinne_done": "§dRinne Tensei: %s jogador(es), %s NPC(s) revividos, %s pilha(s) de itens recuperadas"
+}
