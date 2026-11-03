@@ -31,13 +31,30 @@ jobs:
       - name: Baixar JAR original do Narutoto pela Release
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          set -euo pipefail
           mkdir -p libs
+
+          echo "Verificando os arquivos da Release narutoto-base..."
+          gh release view narutoto-base --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'
+
           gh release download narutoto-base \
-            --repo "${GITHUB_REPOSITORY}" \
-            --pattern "narutoto-0_4_1-forge.jar" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern '*.jar' \
             --dir libs
+
+          shopt -s nullglob
+          jars=(libs/*.jar)
+          if [ "${#jars[@]}" -ne 1 ]; then
+            echo "ERRO: era esperado exatamente 1 arquivo .jar na Release narutoto-base, mas foram encontrados ${#jars[@]}."
+            echo "Abra Releases > narutoto-base e anexe somente o JAR original do Narutoto."
+            exit 1
+          fi
+
+          mv "${jars[0]}" libs/narutoto-0_4_1-forge.jar
           test -s libs/narutoto-0_4_1-forge.jar
+          echo "JAR do Narutoto baixado com sucesso."
 
       - name: Compilar addon
         run: gradle --no-daemon build
