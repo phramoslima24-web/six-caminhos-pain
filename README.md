@@ -35,3 +35,13 @@ Os corpos reutilizam as entidades GeckoLib, os modelos e as texturas de Pain/Jig
 | Rinne Tensei | revive jogadores (online, já renasceram) e NPCs do mod mortos nos últimos 10 min a 64 blocos; devolve itens do chão; você fica debilitado 3 min | 3000 | 10 min |
 
 Valores ajustáveis nas constantes no topo de `Abilities.java` e `PathEvents.java`.
+
+
+## Correção de dependência (v0.2.1)
+
+O JAR base do Narutoto é carregado como arquivo local com `fg.deobf(files(...))`.
+Isso evita que o Gradle tente resolver uma dependência flatDir sem versão
+(`null_mapped_official_1.20.1`).
+
+No GitHub Actions, a Release `narutoto-base` precisa conter o JAR original.
+O workflow baixa o asset e o salva como `libs/narutoto-0_4_1-forge.jar`.

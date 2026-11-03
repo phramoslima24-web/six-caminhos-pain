@@ -40,7 +40,7 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
     // Base mod: remapped to official names so we can call its PlayerVariables directly.
-    implementation fg.deobf(':narutoto-0_4_1-forge')
+    implementation fg.deobf(files('libs/narutoto-0_4_1-forge.jar'))
     implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.4.9')
 }
 
