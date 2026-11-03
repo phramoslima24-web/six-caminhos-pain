@@ -28,13 +28,16 @@ jobs:
         with:
           gradle-version: '8.1.1'
 
-      - name: Verificar dependência do Narutoto
-        shell: bash
+      - name: Baixar JAR original do Narutoto pela Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ ! -f "libs/narutoto-0_4_1-forge.jar" ]; then
-            echo "ERRO: coloque o arquivo narutoto-0_4_1-forge.jar dentro da pasta libs/ e envie-o ao repositório."
-            exit 1
-          fi
+          mkdir -p libs
+          gh release download narutoto-base \
+            --repo "${GITHUB_REPOSITORY}" \
+            --pattern "narutoto-0_4_1-forge.jar" \
+            --dir libs
+          test -s libs/narutoto-0_4_1-forge.jar
 
       - name: Compilar addon
         run: gradle --no-daemon build
