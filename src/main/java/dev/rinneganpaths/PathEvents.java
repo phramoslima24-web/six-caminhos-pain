@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -25,6 +26,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PathEvents {
     static final double GAKI_UPKEEP = 4;            // chakra per 5 ticks
@@ -45,8 +47,11 @@ public class PathEvents {
         if (!data.hasUUID("rp_owner") || body.level().getServer() == null) return;
         ServerPlayer owner = body.level().getServer().getPlayerList().getPlayer(data.getUUID("rp_owner"));
         if (owner == null || !owner.isAlive()) { ev.setCanceled(true); return; }
+        UUID defendTarget = data.hasUUID("rp_defend_target") ? data.getUUID("rp_defend_target") : null;
+        boolean defending = defendTarget != null && defendTarget.equals(ev.getNewTarget().getUUID());
         LivingEntity commanded = Abilities.findTarget(owner, 28);
-        if (ev.getNewTarget() == owner || Abilities.ally(owner, ev.getNewTarget()) || ev.getNewTarget() != commanded) {
+        if (ev.getNewTarget() == owner || Abilities.ally(owner, ev.getNewTarget())
+                || (!defending && ev.getNewTarget() != commanded)) {
             ev.setCanceled(true);
         }
     }
@@ -79,12 +84,46 @@ public class PathEvents {
     // ---- Gakido damage absorption -------------------------------------------
     @SubscribeEvent
     public void onAttack(LivingAttackEvent ev) {
-        if (!(ev.getEntity() instanceof ServerPlayer p) || !p.getPersistentData().getBoolean("rp_gaki")) return;
+        if (!(ev.getEntity() instanceof ServerPlayer p)) return;
         DamageSource s = ev.getSource();
+
+        // The Six Paths automatically intercept attacks from any mob while they are summoned.
+        // Damage is cancelled for the controller and every active Path is ordered to attack the aggressor.
+        if (protectWithSixPaths(p, s)) {
+            ev.setCanceled(true);
+            return;
+        }
+
+        if (!p.getPersistentData().getBoolean("rp_gaki")) return;
         if (s.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
         ev.setCanceled(true);
         Chakra.add(p, ev.getAmount() * GAKI_GAIN_PER_DAMAGE);
         if (s.getEntity() instanceof Player atk && atk != p) Chakra.add(atk, -GAKI_DRAIN_ATTACKER);
+    }
+
+    private boolean protectWithSixPaths(ServerPlayer owner, DamageSource source) {
+        Entity attacker = source.getEntity();
+        if (attacker instanceof Projectile projectile && projectile.getOwner() != null) {
+            attacker = projectile.getOwner();
+        }
+        if (!(attacker instanceof Mob hostile) || !hostile.isAlive()) return false;
+
+        ServerLevel level = owner.serverLevel();
+        List<Mob> bodies = level.getEntitiesOfClass(Mob.class, owner.getBoundingBox().inflate(64),
+                body -> body.getTags().contains("rp_pain_body")
+                        && body.getPersistentData().hasUUID("rp_owner")
+                        && body.getPersistentData().getUUID("rp_owner").equals(owner.getUUID())
+                        && body.isAlive());
+        if (bodies.isEmpty()) return false;
+
+        for (Mob body : bodies) {
+            body.getPersistentData().putUUID("rp_defend_target", hostile.getUUID());
+            body.setTarget(hostile);
+            body.getNavigation().moveTo(hostile, 1.25D);
+            level.sendParticles(ParticleTypes.CRIT, body.getX(), body.getY(1.0), body.getZ(),
+                    5, 0.25, 0.35, 0.25, 0.08);
+        }
+        return true;
     }
 
     // ---- Summon expiry + Black Rods hold -------------------------------------

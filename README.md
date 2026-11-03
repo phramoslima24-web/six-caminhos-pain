@@ -45,3 +45,20 @@ Isso evita que o Gradle tente resolver uma dependência flatDir sem versão
 
 No GitHub Actions, a Release `narutoto-base` precisa conter o JAR original.
 O workflow baixa o asset e o salva como `libs/narutoto-0_4_1-forge.jar`.
+
+
+## v0.2.2 — Proteção automática dos Seis Caminhos
+
+- Quando qualquer Mob causar dano ao jogador que invocou os Seis Caminhos,
+  o dano é interceptado enquanto pelo menos um dos corpos estiver vivo e a até
+  64 blocos.
+- Todos os corpos invocados recebem o agressor como alvo e avançam para atacá-lo.
+- A regra também reconhece ataques de projéteis quando o dono do projétil é um Mob.
+- O sistema não cancela ataques de outros jogadores.
+
+### Skins recebidas
+As quatro skins enviadas foram adicionadas em
+`assets/rinnegan_paths/textures/entity/paths/`, junto com a imagem de referência.
+Elas estão preservadas como assets do projeto; ainda precisam ser ligadas aos
+renderers/modelos GeckoLib correspondentes para aparecerem nos corpos em jogo.
+Faltam as skins de Tendō e Chikushōdō para completar o conjunto.
