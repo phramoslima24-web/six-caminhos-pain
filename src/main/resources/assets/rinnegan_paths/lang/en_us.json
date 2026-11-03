@@ -17,5 +17,12 @@
   "text.rinnegan_paths.interrogate": "§5Jigokudo judgment: %s - HP %s - Chakra %s",
   "text.rinnegan_paths.restored": "§aJigokudo restored %s ally(ies)",
   "text.rinnegan_paths.rinne_none": "§cNobody can be revived nearby (deaths must be recent and within range)",
-  "text.rinnegan_paths.rinne_done": "§dRinne Tensei: %s player(s), %s NPC(s) revived, %s item stack(s) recovered"
+  "text.rinnegan_paths.rinne_done": "§dRinne Tensei: %s player(s), %s NPC(s) revived, %s item stack(s) recovered",
+  "key.rinnegan_paths.summon": "Summon / dismiss the Six Paths of Pain",
+  "ability.rinnegan_paths.tendo": "Tendo - Shinra Tensei (sneak: Bansho Tenin)",
+  "ability.rinnegan_paths.shurado": "Shurado - Mechanical Barrage",
+  "text.rinnegan_paths.bansho_tenin": "Tendo: Bansho Tenin!",
+  "text.rinnegan_paths.shinra_tensei": "Tendo: Shinra Tensei hit %s target(s)!",
+  "text.rinnegan_paths.pain_summoned": "Yarico: the Six Paths of Pain are under your command!",
+  "text.rinnegan_paths.pain_dismissed": "The Six Paths have returned."
 }

@@ -4,7 +4,7 @@ plugins {
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-version = '0.1.0'
+version = '0.2.0'
 group = 'dev.rinneganpaths'
 base { archivesName = 'rinnegan_paths-1.20.1' }
 
@@ -39,12 +39,9 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.3.0'
-    // Dependência local obrigatória: coloque o JAR original do Narutoto em libs/.
-    def narutotoJar = file('libs/narutoto-0_4_1-forge.jar')
-    if (!narutotoJar.exists()) {
-        throw new GradleException('Dependência ausente: libs/narutoto-0_4_1-forge.jar. Consulte o README.md.')
-    }
-    implementation fg.deobf(files(narutotoJar))
+    // Base mod: remapped to official names so we can call its PlayerVariables directly.
+    implementation fg.deobf(':narutoto-0_4_1-forge')
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.20.1:4.4.9')
 }
 
 tasks.named('jar', Jar) {

@@ -1,60 +1,37 @@
-# Rinnegan: Six Paths
+# Rinnegan: Six Paths (addon para Narutoto 0.4.1, Forge 1.20.1)
 
-Addon para **Narutoto: Ninja World 0.4.1**, Minecraft **1.20.1** e **Minecraft Forge 47.3.0**.
+## Como compilar pelo GitHub
+1. Crie uma Release no mesmo repositório com a tag `narutoto-base`.
+2. Anexe nessa Release o arquivo JAR original do Narutoto 0.4.1 Forge (pode manter o nome original).
+3. Envie os arquivos deste projeto para `main` ou `master`.
+4. Abra **Actions > Build Rinnegan Six Paths**. O workflow baixa a dependência da Release e compila o addon.
+5. Baixe o artefato `rinnegan-six-paths` da execução concluída; o mod compilado estará dentro dele.
 
-## Preparar o repositório no GitHub
+Para compilar localmente, coloque `narutoto-0_4_1-forge.jar` em `libs/` e execute `gradle build` com JDK 17 e Gradle 8.1.1.
 
-1. Crie um repositório novo no GitHub.
-2. Envie todos os arquivos e pastas deste projeto, mantendo a estrutura.
-3. Antes de compilar, coloque o arquivo original `narutoto-0_4_1-forge.jar` dentro da pasta `libs/`.
-4. Envie também esse JAR ao repositório, no caminho exato `libs/narutoto-0_4_1-forge.jar`.
-5. Faça commit na branch `main` (ou `master`).
-6. Abra a aba **Actions** e selecione **Compilar Rinnegan Six Paths**.
+## Controles (rebindáveis)
+- `N` alterna o Caminho selecionado.
+- `B` usa o poder do Caminho selecionado.
+- `M` invoca ou dispensa os seis corpos de Pain.
+- Agachar + `B` com Tendō usa Banshō Ten'in; sem agachar usa Shinra Tensei.
+- Agachar + `B` com Jigokudō restaura aliados.
+Confira conflitos em Opções > Controles.
 
-> **Dependência obrigatória:** o código do addon referencia classes internas do Narutoto. Por isso, o JAR original precisa estar presente em `libs/` durante a compilação. O arquivo `.txt` que acompanha a pasta `libs` é apenas um aviso e não substitui o JAR.
+## Yarico e os Seis Caminhos
+O jogador é o controlador principal (Yarico). A tecla `M` invoca seis corpos aliados nomeados Tendō, Shuradō, Ningendō, Chikushōdō, Gakidō e Jigokudō. Eles seguem o controlador, atacam o alvo que ele estiver mirando e podem ser dispensados com `M` novamente. A invocação custa 1200 de chakra e dura até 10 minutos.
 
-## Compilar localmente
+Os corpos reutilizam as entidades GeckoLib, os modelos e as texturas de Pain/Jigokudō que já vêm no JAR original do Narutoto. Como a versão 0.4.1 fornece o modelo de Pain e o de Jigokudō (não seis modelos individuais), cinco corpos usam o visual Pain e o sexto usa o visual Jigokudō, cada um com seu nome de Caminho. Isso mantém o visual nativo do mod sem inventar modelos genéricos.
 
-- Instale o JDK 17.
-- Coloque `narutoto-0_4_1-forge.jar` em `libs/`.
-- Instale Gradle 8.1.1 e execute na pasta do projeto:
+## Habilidades (exigem Rinnegan ativo, usa o chakra do mod base)
+| Caminho | Efeito | Chakra | Recarga |
+|---|---|---|---|
+| Tendō | sem agachar: empurra inimigos próximos (Shinra Tensei); agachado: puxa o alvo (Banshō Ten'in) | 450 | 12 s |
+| Shuradō | rajada mecânica de chakra no alvo | 500 | 15 s |
+| Ningendo | alvo na mira: 24 de dano mágico, fraqueza/lentidão, drena até 400 de chakra (jogador) e devolve metade | 300 | 20 s |
+| Chikushodo | 2 lobos + 1 golem aliados por 45 s, já atacam seu alvo | 400 | 45 s |
+| Gakido | liga/desliga: cancela dano e converte em chakra, absorve projéteis a 3 blocos, drena 40 de quem te bate; custo contínuo | 4/5 ticks | 2 s |
+| Jigokudo | mira: revela vida/chakra, brilho + lentidão. Agachado: cura aliados em 12 blocos, remove efeitos negativos, +300 chakra | 500 | 30 s |
+| Hastes Negras | prende até 3 alvos por 8 s (imobiliza, drena 40 chakra/0,5 s de jogadores) | 300 | 25 s |
+| Rinne Tensei | revive jogadores (online, já renasceram) e NPCs do mod mortos nos últimos 10 min a 64 blocos; devolve itens do chão; você fica debilitado 3 min | 3000 | 10 min |
 
-```bash
-gradle --no-daemon build
-```
-
-O resultado será gerado em `build/libs/`.
-
-## Baixar pelo GitHub Actions
-
-Quando o workflow terminar com sucesso:
-
-1. Abra a execução concluída na aba **Actions**.
-2. Vá até **Artifacts**.
-3. Baixe `rinnegan-six-paths-jar`.
-
-## Controles
-
-- `N`: alterna o Caminho.
-- `B`: usa a habilidade selecionada.
-- Os controles podem ser alterados em **Opções > Controles**.
-
-## Habilidades incluídas nesta versão
-
-| Caminho / técnica | Efeito | Chakra | Recarga |
-|---|---|---:|---:|
-| Ningendo | Alvo na mira: dano mágico, fraqueza/lentidão e drenagem de chakra de jogadores | 300 | 20 s |
-| Chikushodo | Invoca dois lobos e um golem aliados por 45 segundos | 400 | 45 s |
-| Gakido | Barreira que absorve dano/projéteis e converte parte em chakra | 4 por 5 ticks | 2 s |
-| Jigokudo | Interroga alvo ou cura aliados próximos | 500 | 30 s |
-| Hastes Negras | Prende até três alvos e drena chakra de jogadores | 300 | 25 s |
-| Rinne Tensei | Tenta reviver jogadores/NPCs elegíveis registrados pelo addon | 3000 | 10 min |
-
-Os valores podem ser ajustados nas constantes de `Abilities.java` e `PathEvents.java`.
-
-## Observações
-
-- Este pacote foi preparado para envio ao GitHub e compilação automatizada.
-- A compilação ainda precisa ser executada no GitHub Actions para confirmar compatibilidade real.
-- Esta versão não adiciona ainda Shinra Tensei, Bansho Ten'in ou as habilidades do Shurado.
-- Para executar o jogo em ambiente de desenvolvimento, podem ser necessárias dependências adicionais do mod base, como GeckoLib, Photon, Pehkui e Player Animator.
+Valores ajustáveis nas constantes no topo de `Abilities.java` e `PathEvents.java`.

@@ -4,9 +4,9 @@ license="MIT"
 
 [[mods]]
 modId="rinnegan_paths"
-version="0.1.0"
+version="0.2.0"
 displayName="Rinnegan: Six Paths"
-description='''Addon for Narutoto: Ninja World. Adds the Six Paths of Pain abilities, usable while the Rinnegan is active.'''
+description='''Addon for Narutoto: Ninja World. Adds the Six Paths of Pain summons and abilities, controlled by Yarico while the Rinnegan is active.'''
 
 [[dependencies.rinnegan_paths]]
 modId="forge"
@@ -26,5 +26,12 @@ side="BOTH"
 modId="narutoto"
 mandatory=true
 versionRange="[0.4,)"
+ordering="AFTER"
+side="BOTH"
+
+[[dependencies.rinnegan_paths]]
+modId="geckolib"
+mandatory=true
+versionRange="[4.4,)"
 ordering="AFTER"
 side="BOTH"

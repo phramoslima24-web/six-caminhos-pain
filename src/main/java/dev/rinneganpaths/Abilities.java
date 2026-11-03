@@ -1,6 +1,7 @@
 package dev.rinneganpaths;
 
 import net.mcreator.narutoto.network.NarutotoModVariables;
+import net.mcreator.narutoto.init.NarutotoModEntities;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,6 +17,8 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
@@ -38,17 +41,18 @@ import java.util.List;
 import java.util.Optional;
 
 public final class Abilities {
-    public static final String[] IDS = {"ningendo", "chikushodo", "gakido", "jigokudo", "black_rods", "rinne_tensei"};
+    public static final String[] IDS = {"tendo", "shurado", "ningendo", "chikushodo", "gakido", "jigokudo", "black_rods", "rinne_tensei"};
 
     // ---- Tunables ----------------------------------------------------------
-    static final double[] COST = {300, 400, 0, 500, 300, 3000};
-    static final long[] COOLDOWN = {400, 900, 40, 600, 500, 12000};   // ticks
+    static final double[] COST = {450, 500, 300, 400, 0, 500, 300, 3000};
+    static final long[] COOLDOWN = {240, 300, 400, 900, 40, 600, 500, 12000};   // ticks
     static final double GAKI_MIN_CHAKRA = 50;
     /** The base mod's King of Hell entity runs its own damage procedure; keep off unless you've tested it. */
     static final boolean SPAWN_KING_OF_HELL_VISUAL = false;
     static final double RINNE_RADIUS = 64;
     static final long RINNE_WINDOW = 12000;                            // 10 min
     static final long SUMMON_LIFETIME = 900;                           // 45 s
+    static final long PAIN_LIFETIME = 12000;                             // 10 min
     // -----------------------------------------------------------------------
 
     private Abilities() {}
@@ -64,27 +68,124 @@ public final class Abilities {
         long until = p.getPersistentData().getLong(cdKey);
         if (now < until) { msg(p, "text.rinnegan_paths.cooldown", (until - now + 19) / 20); return; }
 
-        if (idx == 2) {
+        if (idx == 4) {
             if (toggleGaki(p, v)) p.getPersistentData().putLong(cdKey, now + COOLDOWN[idx]);
             return;
         }
 
         double cost = COST[idx];
-        if (idx == 5 && v.chakra_maximum > 0) cost = Math.min(cost, v.chakra_maximum * 0.9);
+        if (idx == 7 && v.chakra_maximum > 0) cost = Math.min(cost, v.chakra_maximum * 0.9);
         if (v.chakra < cost) { msg(p, "text.rinnegan_paths.not_enough_chakra", (int) cost); return; }
 
         boolean ok = switch (idx) {
-            case 0 -> ningendo(p);
-            case 1 -> chikushodo(p);
-            case 3 -> jigokudo(p);
-            case 4 -> blackRods(p);
-            case 5 -> rinneTensei(p);
+            case 0 -> tendo(p);
+            case 1 -> shurado(p);
+            case 2 -> ningendo(p);
+            case 3 -> chikushodo(p);
+            case 5 -> jigokudo(p);
+            case 6 -> blackRods(p);
+            case 7 -> rinneTensei(p);
             default -> false;
         };
         if (ok) {
             Chakra.add(p, -cost);
             p.getPersistentData().putLong(cdKey, now + COOLDOWN[idx]);
         }
+    }
+
+    // ---- Tendō: Shinra Tensei / Banshō Ten'in -----------------------------
+    private static boolean tendo(ServerPlayer p) {
+        ServerLevel lvl = p.serverLevel();
+        if (p.isShiftKeyDown()) {
+            LivingEntity target = findTarget(p, 22);
+            if (target == null) { msg(p, "text.rinnegan_paths.no_target"); return false; }
+            Vec3 pull = p.position().add(0, 1.0, 0).subtract(target.position()).normalize();
+            target.setDeltaMovement(pull.scale(1.65).add(0, 0.22, 0));
+            target.hurtMarked = true;
+            lvl.sendParticles(ParticleTypes.PORTAL, target.getX(), target.getY(0.6), target.getZ(), 28, 0.45, 0.6, 0.45, 0.5);
+            lvl.playSound(null, target.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8f, 0.7f);
+            msg(p, "text.rinnegan_paths.bansho_tenin");
+            return true;
+        }
+        int hit = 0;
+        for (LivingEntity target : lvl.getEntitiesOfClass(LivingEntity.class, p.getBoundingBox().inflate(10), e -> validTarget(p, e))) {
+            Vec3 away = target.position().subtract(p.position()).normalize();
+            double strength = Math.max(0.8, 2.8 - target.distanceTo(p) * 0.12);
+            target.setDeltaMovement(away.scale(strength).add(0, 0.55, 0));
+            target.hurtMarked = true;
+            target.hurt(p.damageSources().indirectMagic(p, p), 8.0F);
+            lvl.sendParticles(ParticleTypes.POOF, target.getX(), target.getY(0.5), target.getZ(), 16, 0.4, 0.5, 0.4, 0.08);
+            hit++;
+        }
+        lvl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, p.getX(), p.getY(1.0), p.getZ(), 1, 0, 0, 0, 0);
+        lvl.playSound(null, p.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.8f, 1.2f);
+        msg(p, "text.rinnegan_paths.shinra_tensei", hit);
+        return true;
+    }
+
+    // ---- Shuradō: mechanical chakra barrage -------------------------------
+    private static boolean shurado(ServerPlayer p) {
+        LivingEntity target = findTarget(p, 24);
+        if (target == null) { msg(p, "text.rinnegan_paths.no_target"); return false; }
+        ServerLevel lvl = p.serverLevel();
+        Vec3 from = p.getEyePosition();
+        Vec3 to = target.getEyePosition();
+        beam(lvl, from, to);
+        target.hurt(p.damageSources().indirectMagic(p, p), 18.0F);
+        target.setSecondsOnFire(4);
+        target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 100, 0));
+        lvl.sendParticles(ParticleTypes.EXPLOSION, target.getX(), target.getY(0.8), target.getZ(), 12, 0.5, 0.6, 0.5, 0.08);
+        lvl.sendParticles(ParticleTypes.CRIT, target.getX(), target.getY(0.8), target.getZ(), 24, 0.4, 0.6, 0.4, 0.25);
+        lvl.playSound(null, target.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.7f, 1.6f);
+        return true;
+    }
+
+    /** Invokes or dismisses the six Pain bodies. Yarico remains the controller. */
+    public static void summonSixPaths(ServerPlayer p) {
+        if (!Chakra.rinneganActive(p)) { msg(p, "text.rinnegan_paths.need_rinnegan"); return; }
+        ServerLevel lvl = p.serverLevel();
+        List<Mob> existing = lvl.getEntitiesOfClass(Mob.class, p.getBoundingBox().inflate(48),
+                e -> e.getTags().contains("rp_pain_body") && e.getPersistentData().hasUUID("rp_owner")
+                        && e.getPersistentData().getUUID("rp_owner").equals(p.getUUID()));
+        if (!existing.isEmpty()) {
+            existing.forEach(e -> { lvl.sendParticles(ParticleTypes.POOF, e.getX(), e.getY(0.8), e.getZ(), 18, 0.3, 0.5, 0.3, 0.04); e.discard(); });
+            msg(p, "text.rinnegan_paths.pain_dismissed");
+            return;
+        }
+        NarutotoModVariables.PlayerVariables vars = Chakra.vars(p);
+        double cost = 1200;
+        if (vars == null || vars.chakra < cost) { msg(p, "text.rinnegan_paths.not_enough_chakra", (int) cost); return; }
+        String[] names = {"Tendō", "Shuradō", "Ningendō", "Chikushōdō", "Gakidō", "Jigokudō"};
+        LivingEntity target = findTarget(p, 28);
+        for (int i = 0; i < names.length; i++) {
+            // Reuse the actual GeckoLib Pain/Jigokudo entities and textures shipped by Narutoto.
+            Mob mob = i == 5
+                    ? NarutotoModEntities.JIGOKUDO_NPC.get().create(lvl)
+                    : NarutotoModEntities.PAIN_NPC.get().create(lvl);
+            if (mob == null) continue;
+            double angle = p.getYRot() * Math.PI / 180.0 + (Math.PI * 2.0 * i / 6.0);
+            double x = p.getX() + Math.cos(angle) * 3.2;
+            double z = p.getZ() + Math.sin(angle) * 3.2;
+            mob.moveTo(x, p.getY(), z, p.getYRot(), 0);
+            mob.setCustomName(Component.literal("§5" + names[i]));
+            mob.setCustomNameVisible(true);
+            mob.setPersistenceRequired();
+            AttributeInstance hp = mob.getAttribute(Attributes.MAX_HEALTH);
+            if (hp != null) { hp.setBaseValue(100.0); mob.setHealth(100.0F); }
+            AttributeInstance damage = mob.getAttribute(Attributes.ATTACK_DAMAGE);
+            if (damage != null) damage.setBaseValue(12.0);
+            AttributeInstance speed = mob.getAttribute(Attributes.MOVEMENT_SPEED);
+            if (speed != null) speed.setBaseValue(0.32);
+            markSummon(mob, p, PAIN_LIFETIME);
+            mob.addTag("rp_pain_body");
+            mob.goalSelector.addGoal(0, new PathFollowOwnerGoal(mob, p));
+            if (target != null) mob.setTarget(target);
+            lvl.addFreshEntity(mob);
+            lvl.sendParticles(ParticleTypes.PORTAL, x, p.getY() + 1.0, z, 26, 0.35, 0.8, 0.35, 0.5);
+        }
+        Chakra.add(p, -cost);
+        lvl.playSound(null, p.blockPosition(), SoundEvents.EVOKER_PREPARE_SUMMON, SoundSource.PLAYERS, 1.0f, 0.55f);
+        msg(p, "text.rinnegan_paths.pain_summoned");
     }
 
     // ---- Ningendo: rip the soul -------------------------------------------
@@ -297,6 +398,15 @@ public final class Abilities {
             }
         }
         return given;
+    }
+
+    private static final class PathFollowOwnerGoal extends net.minecraft.world.entity.ai.goal.Goal {
+        private final Mob body;
+        private final ServerPlayer owner;
+        PathFollowOwnerGoal(Mob body, ServerPlayer owner) { this.body = body; this.owner = owner; this.setFlags(java.util.EnumSet.of(Flag.MOVE)); }
+        @Override public boolean canUse() { return owner.isAlive() && body.getTarget() == null && body.distanceToSqr(owner) > 16.0; }
+        @Override public boolean canContinueToUse() { return canUse() && body.distanceToSqr(owner) > 6.25; }
+        @Override public void tick() { body.getNavigation().moveTo(owner, 1.15); }
     }
 
     // ---- Helpers -----------------------------------------------------------

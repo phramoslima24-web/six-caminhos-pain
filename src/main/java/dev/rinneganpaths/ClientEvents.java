@@ -15,6 +15,8 @@ import org.lwjgl.glfw.GLFW;
 public final class ClientEvents {
     static final KeyMapping USE = new KeyMapping("key.rinnegan_paths.use", KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "key.categories.rinnegan_paths");
+    static final KeyMapping SUMMON = new KeyMapping("key.rinnegan_paths.summon", KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_M, "key.categories.rinnegan_paths");
     static final KeyMapping CYCLE = new KeyMapping("key.rinnegan_paths.cycle", KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, "key.categories.rinnegan_paths");
     static int selected = 0;
@@ -25,6 +27,7 @@ public final class ClientEvents {
         public static void keys(RegisterKeyMappingsEvent e) {
             e.register(USE);
             e.register(CYCLE);
+            e.register(SUMMON);
         }
     }
 
@@ -43,6 +46,9 @@ public final class ClientEvents {
             }
             while (USE.consumeClick()) {
                 if (active) Net.CH.sendToServer(new Net.UsePathPacket(selected));
+            }
+            while (SUMMON.consumeClick()) {
+                if (active) Net.CH.sendToServer(new Net.UsePathPacket(99));
             }
         }
     }

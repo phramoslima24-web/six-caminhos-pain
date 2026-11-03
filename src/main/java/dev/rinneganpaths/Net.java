@@ -33,7 +33,10 @@ public final class Net {
             NetworkEvent.Context ctx = sup.get();
             ctx.enqueueWork(() -> {
                 ServerPlayer p = ctx.getSender();
-                if (p != null) Abilities.use(p, m.index);
+                if (p != null) {
+                    if (m.index == 99) Abilities.summonSixPaths(p);
+                    else Abilities.use(p, m.index);
+                }
             });
             ctx.setPacketHandled(true);
         }

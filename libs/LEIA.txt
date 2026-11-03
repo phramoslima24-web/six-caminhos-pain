@@ -1,0 +1,1 @@
+A dependência narutoto-0_4_1-forge.jar é baixada automaticamente pela GitHub Actions da Release narutoto-base. Não coloque o JAR grande no repositório.

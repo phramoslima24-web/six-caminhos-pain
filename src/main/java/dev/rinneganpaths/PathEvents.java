@@ -18,6 +18,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -34,6 +35,21 @@ public class PathEvents {
 
     private static final List<String> NPC_EXCLUDE = List.of(
             "dummy", "sphere", "chibaku", "king_of_hell", "clone", "kongo", "block", "bunshin", "shadow");
+
+    // Pain bodies only attack the target selected by their controller and never attack allies.
+    @SubscribeEvent
+    public void onPainTargetChange(LivingChangeTargetEvent ev) {
+        LivingEntity body = ev.getEntity();
+        if (!body.getTags().contains("rp_pain_body") || ev.getNewTarget() == null) return;
+        CompoundTag data = body.getPersistentData();
+        if (!data.hasUUID("rp_owner") || body.level().getServer() == null) return;
+        ServerPlayer owner = body.level().getServer().getPlayerList().getPlayer(data.getUUID("rp_owner"));
+        if (owner == null || !owner.isAlive()) { ev.setCanceled(true); return; }
+        LivingEntity commanded = Abilities.findTarget(owner, 28);
+        if (ev.getNewTarget() == owner || Abilities.ally(owner, ev.getNewTarget()) || ev.getNewTarget() != commanded) {
+            ev.setCanceled(true);
+        }
+    }
 
     // ---- Gakido upkeep + projectile absorption ----------------------------
     @SubscribeEvent
